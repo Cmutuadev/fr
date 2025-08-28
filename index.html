@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script async src="js/adsbygoogle.js" crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-7621591598245473">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Venex 「 Private Bìnners ↯ 」 ™ 🇵🇸</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/all.min.css" />
+    <link rel="stylesheet" href="css/toastr.min.css" />
+    <link rel="shortcut icon" type="image/png" href="images/Icon.png" />
+    
+    <style>
+        /* Paste all your CSS from the existing style block here (omitted here for brevity) */
+        /* ... your entire existing CSS here ... */
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="app-logo-container">
+                <img src="images/Icon.png" alt="Logo" />
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-university"></i> Card Checker</div>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="gate-select"><i class="fas fa-cogs"></i> Select Gate:</label>
+                    <select id="gate-select" class="form-input">
+                        <option value="stripe" selected>Stripe</option>
+                        <!-- Add more gates as options here -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="card-input"><i class="fas fa-credit-card"></i> Enter Card (cc|mm|yy|cvv):</label>
+                    <input
+                        type="text"
+                        id="card-input"
+                        class="form-input"
+                        placeholder="1234567812345678|12|25|123"
+                        autocomplete="off"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <button id="submit-btn" class="btn btn-action" type="button">Check Card</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-box-compact" id="result" style="white-space: pre-wrap;"></div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/toastr.min.js"></script>
+
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', () => {
+            const gate = document.getElementById('gate-select').value;
+            const card = document.getElementById('card-input').value.trim();
+
+            if (!card) {
+                toastr.error('Please enter card data in the format: cc|mm|yy|cvv');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Checking...';
+
+            fetch('http://127.0.0.1:5000/api/check', { // Change URL if deployed
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gate, card }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                if(data.status && data.status.toLowerCase().includes('error')) {
+                    toastr.error(data.response || 'Error during check');
+                } else if(data.status && data.status.toLowerCase().includes('success')) {
+                    toastr.success('Card checked successfully');
+                }
+            })
+            .catch(err => {
+                resultDiv.textContent = 'Error communicating with backend: ' + err.message;
+                toastr.error('Backend communication error');
+            });
+        });
+    </script>
+</body>
+</html>
